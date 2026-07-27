@@ -2,9 +2,8 @@
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
 
-/* Lien de réservation. Calendly n'est pas encore branché : une fois
-   l'agenda créé, remplacer cette valeur par l'URL de l'événement. */
-const LIEN_CALENDLY = "#calendly-placeholder";
+/* Lien de réservation Calendly — entretien de présentation, 30 minutes. */
+const LIEN_CALENDLY = "https://calendly.com/bly23847/30min";
 
 const ETAPES = [
   { label: "Guide reçu" },
@@ -170,7 +169,12 @@ export default function Merci() {
           </Rev>
           <Rev delai={200}>
             <div className="mt-10">
-              <a href={LIEN_CALENDLY} className="bouton-final">
+              <a
+                href={LIEN_CALENDLY}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bouton-final"
+              >
                 Réserver un entretien de présentation
               </a>
             </div>
