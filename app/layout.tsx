@@ -1,5 +1,11 @@
 import type { Metadata } from "next";
-import { Plus_Jakarta_Sans, Inter } from "next/font/google";
+import {
+  Plus_Jakarta_Sans,
+  Inter,
+  Fraunces,
+  Public_Sans,
+  JetBrains_Mono,
+} from "next/font/google";
 import "./globals.css";
 
 /**
@@ -24,6 +30,32 @@ const inter = Inter({
   display: "swap",
   weight: ["400", "500", "600"],
   variable: "--font-inter",
+});
+
+/* Trio éditorial réservé au bandeau d'identité de la page de capture et à
+   la page de remerciement : Fraunces pour les titres (accent de marque),
+   Public Sans pour le corps sur fond sombre, JetBrains Mono pour les
+   numéros de la timeline. Le reste du site continue de reposer sur
+   Jakarta/Inter — ce trio n'est chargé que là où il est demandé. */
+const fraunces = Fraunces({
+  subsets: ["latin"],
+  display: "swap",
+  weight: ["500", "600"],
+  variable: "--font-fraunces",
+});
+
+const publicSans = Public_Sans({
+  subsets: ["latin"],
+  display: "swap",
+  weight: ["400", "500", "600"],
+  variable: "--font-public-sans",
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ["latin"],
+  display: "swap",
+  weight: ["500", "600"],
+  variable: "--font-jetbrains-mono",
 });
 
 /* Renseigner NEXT_PUBLIC_SITE_URL à l'hébergement pour que les URL
@@ -109,7 +141,7 @@ export default function RootLayout({
   return (
     <html
       lang="fr"
-      className={`${jakarta.variable} ${inter.variable} h-full`}
+      className={`${jakarta.variable} ${inter.variable} ${fraunces.variable} ${publicSans.variable} ${jetbrainsMono.variable} h-full`}
     >
       <body className="min-h-full">
         <script

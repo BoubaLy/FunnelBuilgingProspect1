@@ -554,6 +554,26 @@ export default function Page() {
       </div>
 
       {/* ============================================================
+          0. BANDEAU D'IDENTITÉ — logo et rappel de session.
+          Modification visuelle demandée par le client : n'affecte que la
+          présentation, aucun contenu du hero ci-dessous n'est modifié.
+      ============================================================ */}
+      <div className="barre-identite">
+        <div className="mx-auto flex max-w-6xl flex-col items-center gap-1.5 px-4 py-3 text-center sm:grid sm:grid-cols-[1fr_auto_1fr] sm:gap-4 sm:px-10 sm:text-left">
+          <div className="sm:justify-self-start">
+            <p className="logo-nom">Mind-Eat</p>
+            <p className="logo-sous-titre hidden sm:block">
+              Alimentation en Pleine Conscience
+            </p>
+          </div>
+          <p className="barre-annonce-texte sm:whitespace-nowrap">
+            Formation d’instructeur · Session septembre 2026 · 16 places
+          </p>
+          <span aria-hidden="true" className="hidden sm:block" />
+        </div>
+      </div>
+
+      {/* ============================================================
           1. HERO — photo plein cadre en fond, texte centré par-dessus.
           Le voile clair est la décision de fond : sans lui la photo
           concurrence le titre au lieu de le porter. Il est plus opaque au

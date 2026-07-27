@@ -1,269 +1,180 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 
-/* Emplacement du guide. Le fichier n'existe pas encore : le produire, le
-   déposer dans public/, puis remplacer cette valeur par son chemin. */
-const LIEN_GUIDE = "";
+/* Lien de réservation. Calendly n'est pas encore branché : une fois
+   l'agenda créé, remplacer cette valeur par l'URL de l'événement. */
+const LIEN_CALENDLY = "#calendly-placeholder";
 
-/* Adresse d'expédition à faire ajouter aux contacts. La délivrabilité est
-   le premier poste de perte d'un aimant : un guide qui tombe en
-   indésirables est un contact perdu et une séquence qui ne démarre pas. */
-const EXPEDITEUR = "[ADRESSE D’ENVOI À RENSEIGNER]";
-
-const PROFESSIONS = [
-  { tag: "prof-medecin", label: "Médecin" },
-  { tag: "prof-dieteticien", label: "Diététicien nutritionniste" },
-  { tag: "prof-psychologue", label: "Psychologue" },
-  { tag: "prof-infirmier", label: "Infirmier" },
-  { tag: "prof-sage-femme", label: "Sage-femme" },
-  { tag: "prof-autre", label: "Autre profession de santé" },
+const ETAPES = [
+  { label: "Guide reçu" },
+  { label: "Entretien individuel" },
+  { label: "Formation" },
 ];
 
-const DEMARRAGE = [
-  {
-    situation: "Il ne comprend pas ses propres prises alimentaires",
-    outil: "Commencez par les quatre faims",
-    texte:
-      "« Je ne sais pas pourquoi j’ai mangé ça. » Donner un vocabulaire à ce qu’il vit comme opaque est souvent le premier soulagement de la consultation.",
-  },
-  {
-    situation: "Il connaît les recommandations et ne les applique pas",
-    outil: "Commencez par l’échelle de faim",
-    texte:
-      "Le problème n’est pas le savoir, c’est l’accès aux sensations. Deux questions posées au bon moment déplacent l’attention là où elle manque.",
-  },
-  {
-    situation: "Il mange vite, debout, en travaillant",
-    outil: "Commencez par la dégustation guidée",
-    texte:
-      "Trois minutes en consultation valent mieux qu’une consigne de ralentir qu’il aura oubliée en sortant de votre cabinet.",
-  },
-];
+const mouvementReduit = () =>
+  typeof window !== "undefined" &&
+  window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-export default function Merci() {
-  const [email, setEmail] = useState<string | null>(null);
-  const [choix, setChoix] = useState<string | null>(null);
-  const [etat, setEtat] = useState<"attente" | "envoi" | "fait">("attente");
+/* Révélation au scroll — variante courte (400ms / 20px) propre à cette
+   page, distincte de `.rev` utilisée sur la page de capture. */
+function Rev({
+  children,
+  delai = 0,
+  className = "",
+}: {
+  children: ReactNode;
+  delai?: number;
+  className?: string;
+}) {
+  const ref = useRef<HTMLDivElement | null>(null);
+  const [vu, setVu] = useState(false);
 
-  /* L'adresse est déposée par la page de capture au moment de la
-     soumission. Sans elle, on ne peut rattacher aucun tag : le bloc de
-     segmentation ne s'affiche pas plutôt que d'échouer en silence. */
   useEffect(() => {
-    try {
-      setEmail(window.sessionStorage.getItem("mindeat.email"));
-    } catch {
-      setEmail(null);
+    const el = ref.current;
+    if (!el) return;
+    if (mouvementReduit()) {
+      setVu(true);
+      return;
     }
+    const obs = new IntersectionObserver(
+      ([e]) => {
+        if (e.isIntersecting) {
+          setVu(true);
+          obs.disconnect();
+        }
+      },
+      { threshold: 0.12, rootMargin: "0px 0px -5% 0px" },
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
   }, []);
 
-  const segmenter = async (tag: string) => {
-    if (!email || etat !== "attente") return;
-    setChoix(tag);
-    setEtat("envoi");
-    try {
-      await fetch("/api/inscription", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, tags: [tag] }),
-      });
-    } catch {
-      /* La segmentation est un confort, pas une étape bloquante :
-         un échec réseau ne doit pas être signalé au praticien. */
-    }
-    setEtat("fait");
-  };
+  return (
+    <div
+      ref={ref}
+      className={`rev-merci ${className}`}
+      data-vu={vu ? "true" : "false"}
+      style={{ transitionDelay: `${delai}ms` }}
+    >
+      {children}
+    </div>
+  );
+}
 
+export default function Merci() {
   return (
     <>
       {/* ============================================================
-          1. CONFIRMATION ET LIVRAISON IMMÉDIATE
+          1. CONFIRMATION — coche animée, titre, sous-titre.
       ============================================================ */}
-      <section className="bg-creme px-6 pb-20 pt-20 sm:px-10 sm:pb-24 sm:pt-28">
-        <div className="mx-auto max-w-3xl">
-          <p
-            className="fondu surtitre text-vert-profond"
-            style={{ "--d": "80ms" } as React.CSSProperties}
+      <section className="merci-hero relative overflow-hidden px-6 py-28 text-center sm:px-10 sm:py-36">
+        <div className="relative z-10 mx-auto max-w-xl">
+          <div
+            className="fondu-merci flex justify-center"
+            style={{ "--d": "60ms" } as React.CSSProperties}
           >
-            Étape 2 sur 2 · C’est confirmé
-          </p>
+            <svg
+              viewBox="0 0 64 64"
+              width="56"
+              height="56"
+              fill="none"
+              aria-hidden="true"
+            >
+              <circle
+                cx="32"
+                cy="32"
+                r="28"
+                stroke="#4CAF82"
+                strokeWidth="3"
+                pathLength={100}
+                className="coche-cercle"
+              />
+              <path
+                d="M20 33l8 8 16-18"
+                stroke="#4CAF82"
+                strokeWidth="3"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                pathLength={100}
+                className="coche-marque"
+              />
+            </svg>
+          </div>
 
           <h1
-            className="fondu h1 mt-6"
-            style={{ "--d": "200ms" } as React.CSSProperties}
+            className="fondu-merci merci-titre-hero mt-8"
+            style={{ "--d": "180ms" } as React.CSSProperties}
           >
-            Votre guide est <span className="accent-titre">prêt</span>
+            Votre guide est en route.
           </h1>
 
           <p
-            className="fondu mt-6 max-w-[52ch] text-[17px] leading-[1.8] text-gris"
+            className="fondu-merci merci-soustitre-hero mt-5"
             style={{ "--d": "320ms" } as React.CSSProperties}
           >
-            Vous pouvez le télécharger tout de suite, sans attendre l’email. Une
-            copie part également vers votre boîte de réception.
-          </p>
-
-          <div
-            className="fondu mt-10"
-            style={{ "--d": "440ms" } as React.CSSProperties}
-          >
-            {LIEN_GUIDE ? (
-              <a href={LIEN_GUIDE} download className="cta inline-block">
-                Télécharger le guide
-              </a>
-            ) : (
-              <div className="rounded-md border border-dashed border-bordure bg-white p-6">
-                <p className="surtitre text-gris-clair">
-                  Fichier à déposer
-                </p>
-                <p className="mt-3 max-w-[52ch] text-[15px] leading-relaxed text-gris">
-                  Le guide n’existe pas encore. Une fois produit, le déposer dans
-                  <code className="mx-1 rounded bg-sable px-1.5 py-0.5 text-[13px]">
-                    public/
-                  </code>
-                  et renseigner la constante
-                  <code className="mx-1 rounded bg-sable px-1.5 py-0.5 text-[13px]">
-                    LIEN_GUIDE
-                  </code>
-                  en tête de ce fichier : le bouton de téléchargement remplacera
-                  automatiquement cet encadré.
-                </p>
-              </div>
-            )}
-          </div>
-        </div>
-      </section>
-
-      {/* ============================================================
-          2. DÉLIVRABILITÉ
-      ============================================================ */}
-      <section className="border-y border-bordure bg-sable px-6 py-10 sm:px-10">
-        <div className="mx-auto max-w-3xl">
-          <p className="surtitre text-vert-profond">Avant de fermer cette page</p>
-          <p className="mt-4 max-w-[58ch] text-[16px] leading-relaxed text-gris">
-            Ajoutez{" "}
-            <span className="font-semibold text-encre">{EXPEDITEUR}</span> à vos
-            contacts. Les messageries professionnelles filtrent sévèrement, et un
-            guide qui atterrit dans les indésirables ne s’y retrouve jamais.
-            L’opération prend cinq secondes et vaut pour tous les envois suivants.
+            Il arrive dans votre boîte de réception en moins d’une minute.
           </p>
         </div>
       </section>
 
       {/* ============================================================
-          3. SEGMENTATION — un clic, une question
+          2. TIMELINE — trois étapes, la première déjà franchie.
       ============================================================ */}
-      {email && (
-        <section className="bg-creme px-6 py-20 sm:px-10 sm:py-24">
-          <div className="mx-auto max-w-3xl">
-            {etat === "fait" ? (
-              <div className="fondu rounded-md border border-vert-frais bg-vert-pale p-7">
-                <p className="surtitre text-vert-profond">C’est noté</p>
-                <p className="mt-3 max-w-[54ch] text-[16px] leading-relaxed text-encre">
-                  Vous ne recevrez que ce qui concerne votre exercice —
-                  notamment sur le financement, dont les dispositifs diffèrent
-                  d’une profession à l’autre.
-                </p>
-              </div>
-            ) : (
-              <>
-                <p className="surtitre text-vert-profond">Une question, un clic</p>
-                <h2 className="h2 mt-5 max-w-[24ch]">
-                  Quelle est votre profession ?
-                </h2>
-                <p className="mt-5 max-w-[54ch] text-[16px] leading-relaxed text-gris">
-                  Cela nous évite de vous envoyer des informations qui ne vous
-                  concernent pas. Les dispositifs de prise en charge, en
-                  particulier, ne sont pas les mêmes selon les professions.
-                </p>
-
-                <div className="mt-9 flex flex-wrap gap-3">
-                  {PROFESSIONS.map((p) => (
-                    <button
-                      key={p.tag}
-                      type="button"
-                      onClick={() => segmenter(p.tag)}
-                      disabled={etat === "envoi"}
-                      aria-busy={etat === "envoi" && choix === p.tag}
-                      className="rounded-md border border-bordure bg-white px-5 py-3 text-[15px] font-medium text-encre transition-colors duration-300 hover:border-vert-frais hover:bg-vert-pale disabled:opacity-60"
-                      style={{ transitionTimingFunction: "var(--ease)" }}
-                    >
-                      {p.label}
-                    </button>
-                  ))}
-                </div>
-              </>
-            )}
-          </div>
-        </section>
-      )}
-
-      {/* ============================================================
-          4. PAR OÙ COMMENCER — valeur immédiate
-      ============================================================ */}
-      <section className="border-t border-bordure bg-ivoire px-6 py-20 sm:px-10 sm:py-24">
-        <div className="mx-auto max-w-4xl">
-          <p className="surtitre text-vert-profond">Pendant que le guide arrive</p>
-          <h2 className="h2 mt-5 max-w-[22ch]">
-            Par quel outil commencer, selon le patient
-          </h2>
-
-          <ol className="mt-12 border-t border-bordure">
-            {DEMARRAGE.map((d, i) => (
+      <section className="merci-timeline px-6 py-16 sm:px-10 sm:py-20">
+        <Rev>
+          <ol className="mx-auto flex max-w-3xl flex-col md:flex-row">
+            {ETAPES.map((e, i) => (
               <li
-                key={d.outil}
-                className="grid gap-x-8 gap-y-3 border-b border-bordure py-8 md:grid-cols-[3rem_1fr]"
+                key={e.label}
+                data-active={i === 0}
+                className="merci-etape flex-1"
               >
-                <span className="chiffre text-[15px] text-vert-profond">
+                <span className="merci-etape-numero">
                   {String(i + 1).padStart(2, "0")}
                 </span>
-                <div>
-                  <p className="text-[15px] leading-relaxed text-gris-clair">
-                    {d.situation}
-                  </p>
-                  <h3 className="h3 mt-2 text-[19px]">{d.outil}</h3>
-                  <p className="mt-3 max-w-[58ch] text-[16px] leading-relaxed text-gris">
-                    {d.texte}
-                  </p>
-                </div>
+                <span className="merci-etape-label">{e.label}</span>
               </li>
             ))}
           </ol>
-        </div>
+        </Rev>
       </section>
 
       {/* ============================================================
-          5. L'ÉTAPE SUIVANTE
+          3. CTA — l'entretien individuel.
       ============================================================ */}
-      <section className="bg-vert-profond px-6 py-24 sm:px-10 sm:py-28">
-        <div className="mx-auto max-w-3xl">
-          <p className="surtitre text-vert-frais">Si vous voulez aller plus loin</p>
-          <h2 className="h2 mt-5 max-w-[22ch] text-white">
-            Le guide s’arrête là où commence la conduite d’entretien
-          </h2>
+      <section className="merci-cta relative overflow-hidden px-6 py-28 text-center sm:px-10 sm:py-32">
+        <svg aria-hidden="true" className="grain-sombre opacity-[0.04]">
+          <filter id="grain-merci">
+            <feTurbulence
+              type="fractalNoise"
+              baseFrequency="0.65"
+              numOctaves="3"
+              stitchTiles="stitch"
+            />
+          </filter>
+          <rect width="100%" height="100%" filter="url(#grain-merci)" />
+        </svg>
 
-          <div className="mt-8 max-w-[58ch] space-y-5 text-[16px] leading-[1.8] text-white/80">
-            <p>
-              Les cinq outils sont utilisables seuls. Ce qu’un document ne peut
-              pas transmettre, c’est la façon de recueillir l’expérience d’un
-              patient sans lui suggérer ce qu’il aurait dû ressentir — un geste
-              qui se corrige en situation, pas à la lecture.
+        <div className="relative z-10 mx-auto max-w-xl">
+          <Rev>
+            <h2 className="merci-cta-titre">
+              L’étape suivante : un échange de vingt minutes
+            </h2>
+          </Rev>
+          <Rev delai={100}>
+            <p className="merci-cta-soustitre mt-5">
+              Un instructeur Mind-Eat valide votre candidature lors d’un
+              échange de 20 minutes, sans engagement.
             </p>
-            <p>
-              C’est l’objet de la formation d’instructeur : neuf séances de
-              3 h 30 en visioconférence, seize participants au maximum, réservée
-              aux professionnels de santé.
-            </p>
-          </div>
-
-          <div className="mt-10 flex flex-wrap items-center gap-4">
-            <a href="/" className="cta cta-clair inline-block">
-              Voir le programme
-            </a>
-            <span className="text-[15px] text-white/60">
-              Aucun engagement, la page détaille les dates et le prérequis.
-            </span>
-          </div>
+          </Rev>
+          <Rev delai={200}>
+            <div className="mt-10">
+              <a href={LIEN_CALENDLY} className="bouton-final">
+                Réserver un entretien de présentation
+              </a>
+            </div>
+          </Rev>
         </div>
       </section>
 

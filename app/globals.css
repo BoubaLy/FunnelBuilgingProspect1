@@ -29,6 +29,27 @@
   --font-display: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --font-body: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+
+  /* Trio réservé au bandeau d'identité et à la page /merci — voir
+     app/layout.tsx pour la raison de ce chargement ciblé. */
+  --font-fraunces: var(--font-fraunces), Georgia, serif;
+  --font-public-sans: var(--font-public-sans), ui-sans-serif, system-ui,
+    sans-serif;
+  --font-jetbrains-mono: var(--font-jetbrains-mono), ui-monospace,
+    "SFMono-Regular", monospace;
+
+  /* Palette éditoriale sombre — bandeau d'identité + page /merci.
+     Distincte de la palette « bol » du reste du site : gris neutres et
+     verts plus profonds, pensés pour un fond quasi noir. */
+  --color-vert-nuit: #1e4d3a;
+  --color-vert-coche: #4caf82;
+  --color-noir-hero: #0a0a0a;
+  --color-vert-tres-sombre: #0f1f1a;
+  --color-ecru-merci: #f7f5f0;
+  --color-anthracite: #1a1a1a;
+  --color-gris-froid: #6b6860;
+  --color-pointille: #d5d0c8;
+  --color-gris-attenue: #a0a0a0;
 }
 
 :root {
@@ -512,6 +533,189 @@ h4 {
 }
 
 /* ==================================================================
+   13. BANDEAU D'IDENTITÉ — page de capture
+================================================================== */
+.barre-identite {
+  background: var(--color-vert-nuit);
+}
+.logo-nom {
+  font-family: var(--font-fraunces);
+  font-size: 20px;
+  font-weight: 600;
+  color: #ffffff;
+  line-height: 1.1;
+}
+.logo-sous-titre {
+  margin-top: 2px;
+  font-family: var(--font-public-sans);
+  font-size: 11px;
+  color: var(--color-gris-attenue);
+}
+.barre-annonce-texte {
+  font-family: var(--font-public-sans);
+  font-size: 13px;
+  color: #ffffff;
+  letter-spacing: 0.01em;
+}
+
+/* ==================================================================
+   14. PAGE DE REMERCIEMENT
+================================================================== */
+.merci-hero {
+  background: var(--color-noir-hero);
+}
+.merci-titre-hero {
+  font-family: var(--font-fraunces);
+  font-weight: 600;
+  font-size: clamp(2.2rem, 6vw, 3.5rem); /* jusqu'à 56px */
+  line-height: 1.12;
+  letter-spacing: -0.015em;
+  color: #ffffff;
+}
+.merci-soustitre-hero {
+  font-family: var(--font-public-sans);
+  font-size: 18px;
+  line-height: 1.6;
+  color: var(--color-gris-attenue);
+}
+
+.coche-cercle,
+.coche-marque {
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+}
+.coche-cercle {
+  animation: tracerCoche 380ms var(--ease) forwards;
+  animation-delay: 0ms;
+}
+.coche-marque {
+  animation: tracerCoche 300ms var(--ease) forwards;
+  animation-delay: 300ms;
+}
+@keyframes tracerCoche {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.fondu-merci {
+  opacity: 0;
+  animation: fonduMerci 500ms var(--ease) forwards;
+  animation-delay: var(--d, 0ms);
+}
+@keyframes fonduMerci {
+  to {
+    opacity: 1;
+  }
+}
+
+.rev-merci {
+  opacity: 0;
+  transform: translateY(20px);
+  transition:
+    opacity 400ms var(--ease),
+    transform 400ms var(--ease);
+}
+.rev-merci[data-vu="true"] {
+  opacity: 1;
+  transform: none;
+}
+
+.merci-timeline {
+  background: var(--color-ecru-merci);
+}
+.merci-etape {
+  padding: 22px 26px;
+  opacity: 0.5;
+  transition: opacity 400ms var(--ease);
+}
+.merci-etape[data-active="true"] {
+  opacity: 1;
+}
+.merci-etape-numero {
+  display: block;
+  font-family: var(--font-jetbrains-mono);
+  font-size: 13px;
+  letter-spacing: 0.05em;
+  color: var(--color-vert-nuit);
+}
+.merci-etape-label {
+  display: inline-block;
+  margin-top: 6px;
+  font-family: var(--font-public-sans);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-gris-froid);
+  padding-bottom: 4px;
+  border-bottom: 2px solid transparent;
+}
+.merci-etape[data-active="true"] .merci-etape-label {
+  color: var(--color-anthracite);
+  border-bottom-color: var(--color-vert-nuit);
+}
+@media (min-width: 768px) {
+  .merci-etape {
+    text-align: center;
+    border-left: 1px dotted var(--color-pointille);
+  }
+  .merci-etape:first-child {
+    border-left: none;
+  }
+}
+@media not all and (min-width: 768px) {
+  .merci-etape {
+    border-top: 1px dotted var(--color-pointille);
+  }
+  .merci-etape:first-child {
+    border-top: none;
+  }
+}
+
+.merci-cta {
+  background: var(--color-vert-tres-sombre);
+}
+.merci-cta-titre {
+  font-family: var(--font-fraunces);
+  font-weight: 600;
+  font-size: clamp(1.7rem, 4.5vw, 2.5rem); /* jusqu'à 40px */
+  line-height: 1.18;
+  color: #ffffff;
+}
+.merci-cta-soustitre {
+  font-family: var(--font-public-sans);
+  font-size: 16px;
+  line-height: 1.7;
+  color: var(--color-gris-attenue);
+}
+
+.grain-sombre {
+  position: absolute;
+  inset: -50%;
+  width: 200%;
+  height: 200%;
+  pointer-events: none;
+  mix-blend-mode: screen;
+}
+
+.bouton-final {
+  display: inline-block;
+  background: #ffffff;
+  color: var(--color-noir-hero);
+  border-radius: 4px;
+  padding: 16px 40px;
+  font-family: var(--font-public-sans);
+  font-weight: 600;
+  font-size: 15px;
+  transition:
+    background-color 200ms var(--ease),
+    color 200ms var(--ease);
+}
+.bouton-final:hover {
+  background: var(--color-vert-nuit);
+  color: #ffffff;
+}
+
+/* ==================================================================
    12. MOUVEMENT RÉDUIT
 ================================================================== */
 @media (prefers-reduced-motion: reduce) {
@@ -526,7 +730,9 @@ h4 {
   }
   .mot > span,
   .fondu,
-  .rev {
+  .fondu-merci,
+  .rev,
+  .rev-merci {
     transform: none !important;
     opacity: 1 !important;
   }
@@ -538,5 +744,7 @@ h4 {
   .glyphe path,
   .glyphe circle,
   .glyphe line,
-  .glyphe polyline { stroke-dashoffset: 0 !important; }
+  .glyphe polyline,
+  .coche-cercle,
+  .coche-marque { stroke-dashoffset: 0 !important; }
 }

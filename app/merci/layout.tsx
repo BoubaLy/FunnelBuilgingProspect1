@@ -6,9 +6,9 @@ import type { Metadata } from "next";
  * conversion et laisse fuir la ressource.
  */
 export const metadata: Metadata = {
-  title: "Votre guide est prêt",
+  title: "Votre guide est en route",
   description:
-    "Téléchargement du guide des cinq outils de pleine conscience alimentaire.",
+    "Confirmation d'inscription — le guide des cinq outils de pleine conscience alimentaire arrive par email.",
   robots: { index: false, follow: false, nocache: true },
 };
 
