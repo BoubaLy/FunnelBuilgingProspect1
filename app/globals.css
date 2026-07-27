@@ -1,26 +1,542 @@
 @import "tailwindcss";
 
+/* ==================================================================
+   PALETTE — prélevée dans la photo du hero
+   Bois clair, verts du bol, bleu de la céramique, rouge tomate.
+================================================================== */
+@theme {
+  --color-creme: #faf7f1;
+  --color-sable: #f2ece1;
+  --color-ivoire: #ffffff;
+  --color-vert-profond: #2e6b4f;
+  --color-vert-frais: #63b98a;
+  --color-vert-pale: #e4f0e8;
+  --color-bleu-bol: #4e7a96;
+  --color-bleu-pale: #e3edf3;
+  --color-tomate: #c8503a;
+
+  /* Échelle de gris ardoise — lisibilité et neutralité d'interface. */
+  --color-encre: #1e293b; /* slate-800 : titres */
+  --color-gris: #475569; /* slate-600 : corps de texte */
+  --color-gris-clair: #64748b; /* slate-500 : mentions, micro-copie */
+  --color-gris-tres-clair: #94a3b8; /* slate-400 : placeholders */
+  --color-bordure: #e4dbcc;
+
+  /* Deux familles sans empattement, aucune serif dans le projet.
+     font-heading → titres, numéros, boutons.
+     font-sans / font-body → corps, formulaires, mentions. */
+  --font-heading: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-body: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+}
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-doux: cubic-bezier(0.33, 1, 0.68, 1);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* ==================================================================
+   BASE
+================================================================== */
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-creme);
+  color: #1e293b;
+  font-family: var(--font-body);
+  font-size: 17px;
+  line-height: 1.75; /* leading-relaxed */
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+/* Tous les niveaux de titre : Plus Jakarta Sans, resserré et compact. */
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-heading);
+  color: var(--color-encre);
+  font-weight: 700;
+  letter-spacing: -0.025em; /* tracking-tight */
+  line-height: 1.15; /* leading-tight */
+}
+
+/* Mise en valeur d'un mot dans un titre : couleur d'accent uniquement.
+   Aucun changement de famille, aucune italique. */
+.accent-titre {
+  color: var(--color-vert-profond);
+  font-style: normal;
+}
+
+::selection {
+  background: var(--color-vert-frais);
+  color: var(--color-encre);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-vert-profond);
+  outline-offset: 3px;
+}
+
+/* ==================================================================
+   TYPOGRAPHIE
+   Titres en Plus Jakarta Sans 700/800, corps en Inter 400/500/600.
+================================================================== */
+.h1 {
+  font-family: var(--font-heading);
+  font-weight: 800;
+  font-size: clamp(2.4rem, 5.1vw, 4.25rem);
+  line-height: 1.04;
+  letter-spacing: -0.035em;
+  text-wrap: balance;
+}
+
+.h2 {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: clamp(1.85rem, 4.2vw, 2.85rem);
+  line-height: 1.12;
+  letter-spacing: -0.03em;
+  text-wrap: balance;
+}
+
+.h3 {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+}
+
+/* Surtitre / badge / kicker */
+.surtitre {
+  font-family: var(--font-heading);
+  font-size: 0.8125rem; /* text-sm */
+  font-weight: 600;
+  letter-spacing: 0.14em; /* tracking-widest */
+  text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Chiffres de badges et compteurs */
+.chiffre {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+
+/* ==================================================================
+   1. RÉVÉLATION MOT À MOT
+================================================================== */
+.mot {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: bottom;
+  padding-bottom: 0.09em;
+}
+.mot > * {
+  display: inline-block;
+  transform: translateY(115%);
+  animation: monte 950ms var(--ease) forwards;
+  animation-delay: var(--d, 0ms);
+}
+@keyframes monte {
+  to { transform: translateY(0); }
+}
+
+.fondu {
+  opacity: 0;
+  animation: fondu 900ms var(--ease) forwards;
+  animation-delay: var(--d, 0ms);
+}
+@keyframes fondu {
+  to { opacity: 1; }
+}
+
+/* Volet qui se lève sur la photo du hero */
+.volet {
+  clip-path: inset(0 0 100% 0);
+  animation: leveVolet 1200ms var(--ease) forwards;
+  animation-delay: var(--d, 0ms);
+}
+@keyframes leveVolet {
+  to { clip-path: inset(0 0 0 0); }
+}
+
+/* ==================================================================
+   2. KEN BURNS
+================================================================== */
+@keyframes kenburns {
+  from { transform: scale(1.02); }
+  to { transform: scale(1.12); }
+}
+.kenburns {
+  animation: kenburns 30s var(--ease-doux) infinite alternate;
+  will-change: transform;
+}
+
+/* ==================================================================
+   3. GRAIN — très discret sur fond clair
+================================================================== */
+@keyframes grainDerive {
+  0% { transform: translate(0, 0); }
+  20% { transform: translate(-6%, 3%); }
+  40% { transform: translate(4%, -5%); }
+  60% { transform: translate(-3%, 6%); }
+  80% { transform: translate(5%, -2%); }
+  100% { transform: translate(0, 0); }
+}
+.grain {
+  position: absolute;
+  inset: -50%;
+  width: 200%;
+  height: 200%;
+  pointer-events: none;
+  mix-blend-mode: multiply;
+  animation: grainDerive 8s steps(5) infinite;
+}
+
+/* ==================================================================
+   4. ENTRÉES AU SCROLL
+================================================================== */
+.rev {
+  opacity: 0;
+  transform: translateY(26px);
+  transition:
+    opacity 900ms var(--ease),
+    transform 900ms var(--ease);
+}
+.rev[data-vu="true"] {
+  opacity: 1;
+  transform: none;
+}
+
+.filet {
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 1100ms var(--ease);
+}
+.filet[data-vu="true"] {
+  transform: scaleX(1);
+}
+
+/* ==================================================================
+   5. EFFETS CONTINUS PILOTÉS AU SCROLL — CSS natif
+   ~84 % de support en 2026, hors Baseline : amélioration progressive.
+================================================================== */
+@supports (animation-timeline: scroll()) {
+  .jauge {
+    animation: jaugeAvance linear both;
+    animation-timeline: scroll(root block);
+    transform-origin: left;
+  }
+  @keyframes jaugeAvance {
+    from { transform: scaleX(0); }
+    to { transform: scaleX(1); }
+  }
+
+  .photo-parallaxe {
+    animation: photoMonte linear both;
+    animation-timeline: view();
+    animation-range: entry 0% exit 100%;
+  }
+  @keyframes photoMonte {
+    from { transform: translateY(4%); }
+    to { transform: translateY(-4%); }
+  }
+}
+
+/* ==================================================================
+   6. MACHINE À ÉTAPES — Méthode · Usage · Accès
+================================================================== */
+.etape {
+  position: relative;
+  border: 1px solid var(--color-bordure);
+  background: var(--color-ivoire);
+  border-radius: 6px;
+  transition:
+    border-color 500ms var(--ease),
+    box-shadow 500ms var(--ease),
+    transform 500ms var(--ease),
+    background-color 500ms var(--ease);
+}
+
+.etape[data-actif="true"] {
+  border-color: var(--color-vert-frais);
+  box-shadow: 0 14px 44px -22px rgba(46, 107, 79, 0.55);
+  transform: translateY(-3px);
+}
+
+/* Pastille numérotée */
+.pastille {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 999px;
+  border: 1px solid var(--color-bordure);
+  background: var(--color-creme);
+  transition:
+    background-color 500ms var(--ease),
+    border-color 500ms var(--ease),
+    color 500ms var(--ease);
+}
+.etape[data-actif="true"] .pastille {
+  background: var(--color-vert-profond);
+  border-color: var(--color-vert-profond);
+  color: #fff;
+}
+
+/* Glyphe : tracé complet au repos, retracé à l'activation. */
+.glyphe path,
+.glyphe circle,
+.glyphe line,
+.glyphe polyline {
+  stroke-dasharray: 120;
+  stroke-dashoffset: 0;
+}
+.etape[data-actif="true"] .glyphe path,
+.etape[data-actif="true"] .glyphe circle,
+.etape[data-actif="true"] .glyphe line,
+.etape[data-actif="true"] .glyphe polyline {
+  animation: trace 1100ms var(--ease) backwards;
+}
+@keyframes trace {
+  from { stroke-dashoffset: 120; }
+  to { stroke-dashoffset: 0; }
+}
+
+/* Le texte des trois cartes reste à pleine opacité : atténuer un
+   paragraphe le fait passer sous le seuil de contraste AA. L'état actif
+   est porté par la bordure, l'ombre, la pastille et le glyphe. */
+
+.glyphe {
+  transform: scale(0.94);
+  transition:
+    transform 800ms var(--ease),
+    stroke 800ms var(--ease);
+}
+.etape[data-actif="true"] .glyphe {
+  transform: scale(1);
+}
+
+/* Liaison entre étapes */
+.liaison {
+  position: relative;
+  overflow: hidden;
+  background: var(--color-bordure);
+}
+.liaison > span {
+  position: absolute;
+  inset: 0;
+  transform-origin: left;
+  transform: scaleX(0);
+  background: var(--color-vert-frais);
+  transition: transform 700ms var(--ease);
+}
+.liaison[data-franchi="true"] > span {
+  transform: scaleX(1);
+}
+
+/* ==================================================================
+   7. BOUTON — aimantation + balayage
+================================================================== */
+.cta {
+  --mx: 0px;
+  --my: 0px;
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background: var(--color-vert-profond);
+  color: #fff;
+  border-radius: 6px;
+  padding: 17px 34px;
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 16px;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  cursor: pointer;
+  transform: translate3d(var(--mx), var(--my), 0);
+  transition:
+    background-color 300ms var(--ease),
+    transform 500ms var(--ease),
+    box-shadow 400ms var(--ease);
+  box-shadow: 0 8px 26px -14px rgba(46, 107, 79, 0.7);
+}
+.cta::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(
+    105deg,
+    transparent 35%,
+    rgba(255, 255, 255, 0.3) 50%,
+    transparent 65%
+  );
+  transform: translateX(-120%);
+  transition: transform 900ms var(--ease);
+}
+.cta:hover {
+  background: #24563f;
+  box-shadow: 0 16px 42px -14px rgba(46, 107, 79, 0.85);
+}
+.cta:hover::before {
+  transform: translateX(120%);
+}
+
+.cta-clair {
+  background: var(--color-ivoire);
+  color: var(--color-vert-profond);
+  box-shadow: 0 10px 30px -14px rgba(0, 0, 0, 0.5);
+}
+.cta-clair:hover {
+  background: var(--color-vert-pale);
+}
+
+/* ==================================================================
+   8. CARTES — halo suivant le pointeur
+================================================================== */
+.carte {
+  --cx: 50%;
+  --cy: 50%;
+  position: relative;
+  isolation: isolate;
+  border: 1px solid var(--color-bordure);
+  background: var(--color-ivoire);
+  border-radius: 6px;
+  transition:
+    border-color 400ms var(--ease),
+    transform 500ms var(--ease),
+    box-shadow 500ms var(--ease);
+}
+.carte::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  opacity: 0;
+  background: radial-gradient(
+    20rem circle at var(--cx) var(--cy),
+    rgba(99, 185, 138, 0.16),
+    transparent 62%
+  );
+  transition: opacity 450ms var(--ease);
+}
+.carte:hover {
+  border-color: var(--color-vert-frais);
+  transform: translateY(-4px);
+  box-shadow: 0 20px 48px -26px rgba(31, 29, 26, 0.45);
+}
+.carte:hover::before {
+  opacity: 1;
+}
+
+/* ==================================================================
+   9. INDEX COLLANT
+================================================================== */
+.chiffre-piste {
+  position: relative;
+  height: 1em;
+  overflow: hidden;
+}
+.chiffre-piste > span {
+  position: absolute;
+  inset: 0;
+  transition:
+    transform 700ms var(--ease),
+    opacity 500ms var(--ease);
+}
+
+/* ==================================================================
+   10. FORMULAIRE
+================================================================== */
+.champ-email {
+  background: var(--color-ivoire);
+  border: 1px solid var(--color-bordure);
+  border-radius: 6px;
+  color: #334155; /* slate-700 */
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: 16px;
+  padding: 17px 20px;
+  width: 100%;
+  transition:
+    border-color 300ms var(--ease),
+    box-shadow 300ms var(--ease);
+}
+.champ-email::placeholder {
+  color: var(--color-gris-tres-clair); /* slate-400 */
+}
+.champ-email:focus {
+  outline: none;
+  border-color: var(--color-vert-profond);
+  box-shadow: 0 0 0 3px rgba(99, 185, 138, 0.28);
+}
+
+.champ-sombre {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.28);
+  color: #fff;
+}
+.champ-sombre::placeholder {
+  color: rgba(255, 255, 255, 0.6);
+}
+.champ-sombre:focus {
+  background: rgba(255, 255, 255, 0.16);
+  border-color: #fff;
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.22);
+}
+
+/* ==================================================================
+   11. INDICATEUR DE DÉFILEMENT
+================================================================== */
+@keyframes descend {
+  0% { transform: translateY(-100%); opacity: 0; }
+  40% { opacity: 1; }
+  100% { transform: translateY(100%); opacity: 0; }
+}
+.trait-descend::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--color-vert-profond);
+  animation: descend 2.4s var(--ease-doux) infinite;
+}
+
+/* ==================================================================
+   12. MOUVEMENT RÉDUIT
+================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    animation-delay: 0ms !important;
+    transition-duration: 0.001ms !important;
+  }
+  .mot > span,
+  .fondu,
+  .rev {
+    transform: none !important;
+    opacity: 1 !important;
+  }
+  .volet { clip-path: none !important; }
+  .filet { transform: scaleX(1) !important; }
+  .kenburns,
+  .grain,
+  .trait-descend::after { animation: none !important; }
+  .glyphe path,
+  .glyphe circle,
+  .glyphe line,
+  .glyphe polyline { stroke-dashoffset: 0 !important; }
 }
